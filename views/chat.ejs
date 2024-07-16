@@ -1,0 +1,204 @@
+<% include ./partials/header.ejs %>
+<style>
+    @media (min-width: 500px) {
+        .content {
+            padding-bottom: 2.2rem;
+        }
+    }
+</style>
+
+<div class="chats w-full min-h-screen bg-zinc-900 text-white py-3">
+    <div class="nav flex justify-between items-center px-2 py-2 fixed top-0 w-full bg-zinc-900 border-b border-gray-200">
+        <div class="flex items-center gap-2 justify-between">
+            <a href="/inbox"><i class="text-[1.4rem] ri-arrow-left-s-line"></i></a>
+            <div class="w-[10vw] h-[10vw] bg-sky-100 rounded-full overflow-hidden">
+                <img class="w-full h-full object-cover" src="/images/uploads/<%= followerUser.picture %>" alt="">
+            </div>
+            <h3 class="text-lg">
+                <%= followerUser.username.length > 20 ? followerUser.username.substring(0, 20) + "..." : followerUser.username %>
+            </h3>
+        </div>
+        <div class="icons flex gap-5">
+            <i class="text-[1.4rem] ri-video-chat-line"></i>
+            <i class="text-[1.4rem] ri-chat-voice-line"></i>
+        </div>
+    </div>
+
+    <!-- Chat Messages -->
+    <div class="content pb-10 pt-[18%] overflow-y-scroll scrollbar-hide h-screen" id="scrollableDiv">
+        <div class="flex justify-center items-center h-auto mb-2">
+            <div class="shadow-lg rounded-lg w-full max-w-md shadow-gray-800 mb-5">
+
+                <div class="w-20 h-20 mx-auto rounded-full overflow-hidden">
+                    <img class="w-full h-full object-cover" src="/images/uploads/<%= followerUser.picture %>" alt="Profile Image">
+                </div>
+
+                <h1 class="text-1xl font-bold text-center"><%= followerUser.name.length > 40 ? followerUser.name.substring(0, 40) + "..." : followerUser.name %></h1>
+                <h1 class="text-1xl font-semibold text-center">Instagram • <%= followerUser.username.length > 30 ? followerUser.username.substring(0, 30) + "..." : followerUser.username %></h1>
+
+                <div class="flex justify-center">
+                    <div class="mr-2 text-center">
+                        <span class="block text-gray-400"><%= followerUser.followers.length %> Followers</span>
+                    </div>
+                    <h1 class="text-gray-400">•</h1>
+                    <div class="ml-2 text-center">
+                        <span class="block text-gray-400"><%= followerUser.posts.length %> Posts</span>
+                    </div>
+                </div>
+                <!-- Follow Message -->
+                <% if (loggedInUser._id.toString() === followerUser._id.toString()) { %>
+                    <p class="text-red-500 text-center mb-2">This is your own profile</p>
+                <% } else { %>
+                    <% if (loggedInUser.following.includes(followerUser._id) && followerUser.following.includes(loggedInUser._id)) { %>
+                        <p class="text-gray-500 text-center mb-2">You follow each other on Instagram</p>
+                    <% } else if (loggedInUser.following.includes(followerUser._id)) { %>
+                        <p class="text-gray-400 text-center">You've followed this Instagram account</p>
+                    <% } else if (followerUser.following.includes(loggedInUser._id)) { %>
+                        <p class="text-gray-400 text-center">Follows you</p>
+                    <% } else { %>
+                        <p class="text-gray-400 text-center">You don't follow each other on Instagram</p>
+                    <% } %>
+                <% } %>
+
+                <% if (loggedInUser._id.toString() !== followerUser._id.toString()) { %>
+                    <div class="text-center my-4">
+                        <a href="/profile/<%= followerUser._id %>" class="bg-gray-500 hover:bg-gray-600 text-white font-medium text-sm px-2 py-1 rounded-md">View Profile</a>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+        
+        <!-- Chat Messages added here -->
+
+    </div>
+
+    <!-- Message Input -->
+    <div class="bg-zinc-900 fixed bottom-0 w-full rounded-t-md overflow-hidden">
+        <form id="inputform">
+            <div class="flex items-center">
+                <i class="bg-blue-400 hover:bg-blue-400 text-white font-semibold px-3 py-0.5 rounded-l-md mr-0.5 text-[1.6rem] ri-camera-fill"></i>
+                <input type="text" id="inputMessage" class="inputMessage text-black bg-white-400 font-semibold w-full p-2 border border-gray-300 rounded-r-md outline-none" placeholder="Type a message...">
+                <button id="sendMessage" type="submit" class="ml-0.5 bg-blue-500 hover:bg-blue-600 text-white font-semibold px-3 py-0.5 rounded-l-md"><i class="text-[1.6rem] ri-send-plane-fill"></i></button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.7/axios.min.js" integrity="sha512-NQfB/bDaB8kaSXF8E77JjhHG5PM6XVRxvHzkZiwl3ddWCEPBa23T76MuWSwAJdMGJnmQqM0VeY9kFszsrBEFrQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script>
+    const socket = io();
+    const loggedInUser = '<%= loggedInUser._id %>';
+    const followerUser = '<%= followerUser._id %>';
+    //console.log("loggedInUser= " + loggedInUser);
+    //console.log("followerUser= " + followerUser);
+
+    socket.emit('join-server', loggedInUser);
+
+    socket.on('receive-private-message', messageObject => {
+        appendIncomingMessage(messageObject.message, messageObject.time);
+    })
+
+    function appendOutgoingMessage(message, formattedTime) {
+        const template = `
+        <div class="flex h-auto items-end justify-end mb-1 mr-2 ml-16">
+            <div class="bg-blue-400 px-2 rounded-lg">
+                <p class="whitespace-pre-wrap">${message}</p>
+                <p class="text-xs text-gray-500 font-semibold text-right">${formattedTime}</p>
+            </div>
+        </div>`;
+        document.querySelector('#scrollableDiv').innerHTML += template;
+        scrollToBottom();
+    }
+
+    function appendIncomingMessage(message, time) {
+        const template = `
+        <div class="flex h-auto items-start justify-start mb-1 mr-16 ml-2">
+            <img src="/images/uploads/<%= followerUser.picture %>" alt="Profile Pic" class="w-8 h-8 rounded-full mr-2 object-cover">
+            <div class="bg-blue-400 px-2 rounded-lg">
+                <p class="whitespace-pre-wrap">${message}</p>
+                <p class="text-xs text-gray-500 font-semibold text-right">${time}</p>
+            </div>
+        </div>`;
+        document.querySelector('#scrollableDiv').innerHTML += template;
+        scrollToBottom();
+    }
+
+    async function fetchChatHistory() {
+        try {
+            const response = await axios.get(`/chat/history?sender=${loggedInUser}&receiver=${followerUser}`);
+            const messages = response.data;
+            let lastDate = '';
+    
+            messages.forEach(message => {
+                if (message.date !== lastDate) {
+                    const dateTemplate = `<p class="text-sm text-gray-500 font-semibold text-center pb-3">${message.date}</p>`;
+                    document.querySelector('#scrollableDiv').innerHTML += dateTemplate;
+                    lastDate = message.date;
+                }
+                if (message.sender._id === loggedInUser) {
+                    appendOutgoingMessage(message.content, message.time);
+                } else {
+                    appendIncomingMessage(message.content, message.time);
+                }
+            });
+            scrollToBottom();
+    
+        } catch (error) {
+            console.error('Error fetching chat history:', error);
+        }
+    }
+
+    document.getElementById('inputform').addEventListener('submit', function(event) {
+        event.preventDefault();
+        const message = document.getElementById('inputMessage').value.trim();
+        if (message !== '') {
+            
+            const indiaTime = new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" });
+            
+            const optionsDate = {
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric', 
+                timeZone: 'Asia/Kolkata' 
+            };
+
+            const optionsTime = { 
+                hour: 'numeric', 
+                minute: 'numeric', 
+                second: 'numeric', 
+                hour12: true, 
+                timeZone: 'Asia/Kolkata' 
+            };
+
+            const formatterDate = new Intl.DateTimeFormat('en-US', optionsDate);
+            const formatterTime = new Intl.DateTimeFormat('en-US', optionsTime);
+
+            const formattedDate = formatterDate.format(new Date(indiaTime));
+            const formattedTime = formatterTime.format(new Date(indiaTime));
+            // console.log(`Date: ${formattedDate}`);
+            // console.log(`Time: ${formattedTime}`);
+
+           appendOutgoingMessage(message, formattedTime);
+           document.getElementById('inputMessage').value = '';
+
+           const messageObject = {
+                message: message,
+                receiver: followerUser,
+                sender: loggedInUser,
+                date: formattedDate,
+                time: formattedTime
+            };
+            socket.emit('send-private-message', messageObject);
+        }
+    });
+
+    function scrollToBottom() {
+        const scrollableDiv = document.getElementById('scrollableDiv');
+        scrollableDiv.scrollTop = scrollableDiv.scrollHeight;
+    }
+
+    window.onload = fetchChatHistory;
+</script>
+
+<% include ./partials/footer.ejs %>

@@ -1,0 +1,73 @@
+<% include ./partials/header.ejs %>
+<div class="chats w-full min-h-screen bg-zinc-900 text-white py-3">
+  <div class="nav flex gap-4 items-center px-4 justify-between">
+    <div class="flex items-center gap-4">
+      <a href="/feed"><i class="text-[1.4rem] ri-arrow-left-s-line"></i></a>
+      <h3 class="text-lg">Notifications</h3>
+    </div>
+    <% if (notifications.length > 0) { %>
+      <a href="/notifications/clear-all">
+        <h1 class="text-sx text-red-400 font-semibold">Clear All</h1>
+      </a>
+    <% } %>
+  </div>
+
+  <div class="border-b border-slate-400 mt-2"></div>
+  <% if (notifications.length === 0) { %>
+    <div class="flex flex-col items-center justify-center h-full py-60">
+      <i class="ri-notification-4-line text-5xl text-gray-400 mb-4"></i>
+      <h3 class="text-lg text-gray-400">No notifications found</h3>
+    </div>
+  <% } else { %>
+    <% notifications.reverse().forEach(notification => { %>
+      <a href="/profile/<%= notification.fromUser._id %>" class="outline-none">
+        <div class="px-4 flex items-center justify-between gap-2 py-2">
+          <div class="flex items-center gap-2">
+            <div class="w-[10vw] h-[10vw] bg-sky-100 rounded-full overflow-hidden">
+              <% if (notification.fromUser && notification.fromUser.picture) { %>
+                <img class="w-full h-full object-cover" src="/images/uploads/<%= notification.fromUser.picture %>" alt="">
+              <% } else { %>
+                <img class="w-full h-full object-cover" src="/images/default-user-image.png" alt="">
+              <% } %>
+            </div>
+            <div>
+              <h4 class="text-sm">
+                <span class="font-bold">
+                  <%= notification.fromUser.username.length > 15 ? notification.fromUser.username.substring(0, 15) + "..." : notification.fromUser.username %>
+                </span>
+                <% if (notification.type === 'like') { %>
+                  liked your post.
+                <% } else if (notification.type === 'unlike') { %>
+                  unliked your post.
+                <% } else if (notification.type === 'follow') { %>
+                  started following you.
+                <% } else if (notification.type === 'unfollow') { %>
+                  unfollowed you.
+                <% } else if (notification.type === 'comment') { %>
+                  commented on your post.
+                <% } %>
+              </h4>
+              <h6 class="text-xs opacity-30">
+                <%= dater(notification.createdAt) %> ago
+              </h6>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <% if (notification.type === 'follow' || notification.type === 'unfollow') { %>
+              <% if(user.following.includes(notification.fromUser._id)){ %>
+                <a class="px-2.5 py-1.5 bg-zinc-800 text-xs rounded-md" href="/follow/<%= notification.fromUser._id %>">Following</a>
+                <% } else { %>
+                  <a class="px-2.5 py-1.5 bg-blue-500 text-xs rounded-md" href="/follow/<%= notification.fromUser._id %>">Follow</a>
+              <% } %>
+            <% } else if (notification.post && notification.post.picture) { %>
+              <div class="w-[10vw] h-[10vw] bg-sky-100 overflow-hidden">
+                <img class="w-full h-full object-cover" src="/images/uploads/<%= notification.post.picture %>" alt="">
+              </div>
+            <% } %>
+          </div>
+        </div>
+      </a>
+    <% }); %>
+  <% } %>
+</div>
+<% include ./partials/footer.ejs %>

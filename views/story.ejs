@@ -1,0 +1,135 @@
+<% include ./partials/header.ejs %>
+
+<div id="stories-container" data-stories='<%= JSON.stringify(stories.reverse()) %>'></div>
+<div class="stories-container w-full min-h-screen bg-zinc-900 text-white relative">
+  <div class="nav flex gap-4 items-center px-4 py-3 bg-transparent absolute top-0 left-0 right-0 z-10">
+    <a href="/feed"><i class="text-[1.4rem] ri-arrow-left-s-line"></i></a>
+    <h3 class="text-lg">
+      <span id="username"><%= stories[0].user.username.length > 20 ? stories[0].user.username.substring(0, 20) + "..." : stories[0].user.username %></span>
+      <span id="date" class="text-xs text-gray-400"></span>
+    </h3>
+  </div>
+  
+  <div class="progress-container absolute top-0 left-0 right-0 h-1 flex z-10">
+    <% stories.forEach((story, index) => { %>
+      <div class="progress-wrapper flex-1 mx-1 bg-gray-700">
+        <div class="progress bg-white h-full" id="progress-<%= index %>"></div>
+      </div>
+    <% }); %>
+  </div>
+  
+  <% stories.forEach((story, index) => { %>
+    <div class="story w-full h-full flex items-center justify-center absolute top-0 left-0 right-0 bottom-0" id="story-<%= index %>" style="display: none;">
+      <img src="/images/uploads/<%= story.story %>" class="max-w-full max-h-full object-cover" alt="Story">
+    </div>
+  <% }); %>
+</div>
+
+<script>
+  let storiesContainer = document.getElementById('stories-container');
+  let stories = JSON.parse(storiesContainer.getAttribute('data-stories'));
+  let currentStoryIndex = 0;
+  let viewerUserId = "<%= viewerUserId %>";
+  let interval;
+  let halfProgressTimeout;
+
+  function dater(dateString) {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diff = now - date;
+    const seconds = Math.floor(diff / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+
+    if (seconds < 60) {
+        return `${seconds}s `;
+    } else if (minutes < 60) {
+        return `${minutes}m `;
+    } else if (hours < 24) {
+        return `${hours}h `;
+    } else {
+        const options = { year: 'numeric', month: 'short', day: 'numeric' };
+        return date.toLocaleDateString('en-US', options);
+    }
+  }
+
+  function showStory(index) {
+    clearTimeout(halfProgressTimeout);
+
+    document.getElementById('date').innerText = dater(stories[index].date);
+    document.getElementById('username').innerText = stories[index].user.username.length > 20 ? stories[index].user.username.substring(0, 20) + "..." : stories[index].user.username;
+
+    document.querySelectorAll('.story').forEach((el, i) => {
+      el.style.display = i === index ? 'flex' : 'none';
+    });
+
+    document.querySelectorAll('.progress').forEach((el, i) => {
+      el.style.width = i < index ? '100%' : '0%';
+      el.style.opacity = i === index ? '1' : '0.2';
+      el.style.transition = 'none';
+    });
+
+    setTimeout(() => {
+      document.querySelectorAll('.progress').forEach((el, i) => {
+        if (i === index) {
+          el.style.transition = 'width 15s linear';
+          el.style.width = '100%';
+        }
+      });
+    }, 50);
+
+    halfProgressTimeout = setTimeout(() => {
+      sendStoryViewData(viewerUserId, stories[index]._id);
+    }, 3000);
+
+    interval = setTimeout(nextStory, 15000);
+  }
+
+  function nextStory() {
+    clearTimeout(interval);
+    clearTimeout(halfProgressTimeout);
+    currentStoryIndex++;
+    if (currentStoryIndex >= stories.length) {
+      window.location.href = '/feed';
+    } else {
+      showStory(currentStoryIndex);
+    }
+  }
+
+  function previousStory() {
+    clearTimeout(interval);
+    clearTimeout(halfProgressTimeout);
+    currentStoryIndex--;
+    if (currentStoryIndex < 0) {
+      currentStoryIndex = 0;
+    }
+    showStory(currentStoryIndex);
+  }
+
+  function sendStoryViewData(viewerUserId, storyId) {
+    fetch('/storyview', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ viewerUserId, storyId }),
+    })
+    .then(response => response.json())
+    .then(data => console.log('Success:', data))
+    .catch((error) => console.error('Error:', error));
+  }
+
+  document.querySelector('.stories-container').addEventListener('click', (e) => {
+    if (e.clientX < window.innerWidth / 2) {
+      previousStory();
+    } else {
+      nextStory();
+    }
+  });
+
+  document.addEventListener('DOMContentLoaded', () => {
+    showStory(currentStoryIndex);
+  });
+</script>
+
+<% include ./partials/footer.ejs %>

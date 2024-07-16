@@ -1,0 +1,102 @@
+<% include ./partials/header.ejs %>
+
+<div class="w-full bg-zinc-900 text-white py-3">
+  <div class="flex justify-between items-center px-4">
+    <a href="/feed"><i class="text-[1.4rem] ri-arrow-left-s-line"></i></a>
+    <h3 class="text-lg">
+      <%= user.username.length > 16 ? user.username.substring(0, 16) + "..." : user.username %>
+    </h3>
+    <div class="icons flex gap-5 ">
+      <i class="text-[1.4rem] ri-edit-box-line"></i>
+    </div>
+  </div>
+
+  <div class="border-b border-slate-400 mt-2"></div>
+
+  <div class="w-full min-[2vw] bg-zinc-900 px-4 py-3">
+    <div class="border-2 border-zinc-800 flex items-center justify-between px-2 py-1 rounded-md">
+      <i class="text-white ri-search-line"></i>
+      <input id="searchUserInput" class="input ml-1 w-full bg-zinc-900 outline-none text-zinc-400" type="text" placeholder="Search user">
+    </div>
+  </div>
+
+  <h4 class="bg-zinc-900 px-4">Messages</h4>
+  <div class="users px-4">
+    <!-- searched user appear here -->
+  </div>
+</div>
+
+<div class="chats w-full min-h-screen bg-zinc-900 text-white py-3">
+  <% userLastMessages.forEach(function({ user, lastMsg }) { %>
+    <a href="/chat/<%= user._id %>">
+      <div class=" px-4 flex items-center gap-2 py-2 chat" id="shery_<%= user._id %>">
+        <div class="w-[13vw] h-[13vw] bg-sky-100 rounded-full overflow-hidden">
+          <img class="w-full h-full object-cover" src="/images/uploads/<%= user.picture %>" alt="">
+        </div>
+        <div>
+          <h4 class="text-sm">
+            <%= user.username.length > 16 ? user.username.substring(0, 16) + "..." : user.username %>
+          </h4>
+          <% if (lastMsg) { %>
+            <% let messagePreview = lastMsg.content; %>
+            <% if (messagePreview.length > 20) { %>
+              <% messagePreview = messagePreview.substring(0, 20) + "..."; %>
+            <% } %>
+            <% if (lastMsg.sender._id.equals(user._id)) { %>
+              <h6 class="text-xs opacity-100 font-semibold">
+                <%= messagePreview %> • Received <%= dater(lastMsg.createdAt) %> ago 
+              </h6>
+            <% } else { %>
+              <h6 class="text-xs opacity-30">
+                <%= messagePreview %> • Sent <%= dater(lastMsg.createdAt) %> ago
+              </h6>
+            <% } %>
+          <% } else { %>
+            <h6 class="text-xs opacity-30">
+              No messages
+            </h6>
+          <% } %>          
+        </div>
+        <!-- <h1 class="text-3xl opacity-100 text-green-800 font-bold">
+          <% if (lastMsg) { %>
+            <% if (lastMsg.sender._id.equals(user._id)) { %>
+                •
+            <% } %>
+          <% } %>
+        </h1> -->
+      </div>
+    </a>
+  <% }); %>
+</div>
+
+<script>
+  const inp = document.querySelector("#searchUserInput");
+  inp.addEventListener("input", function(e) {
+    if (inp.value !== '') {
+      fetch(`/search/${inp.value}`)
+        .then(raw => raw.json())
+        .then(result => {
+          let clutter = "";
+
+          result.forEach((item) => {
+            clutter += `<a href="/chat/${item._id}" class="outline-none" id="Haauj_H${item._id}">
+                          <div class="text-white flex items-center gap-2 mt-5">
+                            <div class="image w-[11vw] h-[11vw] rounded-full bg-sky-100 overflow-hidden">
+                              <img src="/images/uploads/${item.picture}" alt="">
+                            </div>
+                            <div class="text">
+                              <h3>${item.username.length > 30 ? item.username.substring(0, 30) + "..." : item.username}</h3>
+                              <h4 class="text-xs opacity-30 leading-none">${item.name.length > 30 ? item.name.substring(0, 30) + "..." : item.name}</h4>
+                            </div>
+                          </div>            
+                        </a>`;
+          });
+
+          document.querySelector(".users").innerHTML = clutter;
+        });
+    }
+  });
+
+</script>
+
+<% include ./partials/footer.ejs %>
