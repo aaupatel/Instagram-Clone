@@ -1,5 +1,5 @@
 <% include ./partials/header.ejs %>
-<div class="chats w-full min-h-screen bg-zinc-900 text-white py-3">
+<div class="notifications w-full min-h-screen bg-zinc-900 text-white py-3">
   <div class="nav flex gap-4 items-center px-4 justify-between">
     <div class="flex items-center gap-4">
       <a href="/feed"><i class="text-[1.4rem] ri-arrow-left-s-line"></i></a>
@@ -19,55 +19,92 @@
       <h3 class="text-lg text-gray-400">No notifications found</h3>
     </div>
   <% } else { %>
-    <% notifications.reverse().forEach(notification => { %>
-      <a href="/profile/<%= notification.fromUser._id %>" class="outline-none">
-        <div class="px-4 flex items-center justify-between gap-2 py-2">
-          <div class="flex items-center gap-2">
-            <div class="w-[10vw] h-[10vw] bg-sky-100 rounded-full overflow-hidden">
-              <% if (notification.fromUser && notification.fromUser.picture) { %>
-                <img class="w-full h-full object-cover" src="/images/uploads/<%= notification.fromUser.picture %>" alt="">
-              <% } else { %>
-                <img class="w-full h-full object-cover" src="/images/default-user-image.png" alt="">
-              <% } %>
-            </div>
-            <div>
-              <h4 class="text-sm">
+    <% notifications.forEach(notification => { %>
+      <div class="flex py-2 px-2">
+        <div class="flex items-center gap-2 w-full">
+          <div class="w-10 h-10 md:w-12 md:h-12 bg-sky-100 rounded-full overflow-hidden self-start">
+            <% if (notification.fromUser && notification.fromUser.picture) { %>
+              <img class="w-full h-full object-cover" src="/images/uploads/<%= notification.fromUser.picture %>" alt="">
+            <% } else { %>
+              <img class="w-full h-full object-cover" src="/images/default-user-image.png" alt="">
+            <% } %>
+          </div>
+          <div class="flex flex-col break-words w-full">
+            <h4 class="text-sm break-words">
+              <a href="/profile/<%= notification.fromUser._id %>" class="outline-none">
                 <span class="font-bold">
                   <%= notification.fromUser.username.length > 15 ? notification.fromUser.username.substring(0, 15) + "..." : notification.fromUser.username %>
                 </span>
-                <% if (notification.type === 'like') { %>
-                  liked your post.
-                <% } else if (notification.type === 'unlike') { %>
-                  unliked your post.
-                <% } else if (notification.type === 'follow') { %>
-                  started following you.
-                <% } else if (notification.type === 'unfollow') { %>
-                  unfollowed you.
-                <% } else if (notification.type === 'comment') { %>
-                  commented on your post.
-                <% } %>
-              </h4>
-              <h6 class="text-xs opacity-30">
-                <%= dater(notification.createdAt) %> ago
-              </h6>
-            </div>
-          </div>
-          <div class="flex items-center gap-2">
-            <% if (notification.type === 'follow' || notification.type === 'unfollow') { %>
-              <% if(user.following.includes(notification.fromUser._id)){ %>
-                <a class="px-2.5 py-1.5 bg-zinc-800 text-xs rounded-md" href="/follow/<%= notification.fromUser._id %>">Following</a>
+              </a>
+              <% if (notification.type === 'like') { %>
+                liked your post.
+              <% } else if (notification.type === 'unlike') { %>
+                unliked your post.
+              <% } else if (notification.type === 'follow') { %>
+                started following you.
+              <% } else if (notification.type === 'unfollow') { %>
+                unfollowed you.
+              <% } else if (notification.type === 'comment' && notification.comment) { %>
+                commented on your post: 
+                <% if (notification.comment.text.length > 20) { %>
+                    "<span id="commentText<%= notification.comment._id %>"><%= notification.comment.text.substring(0,20) %></span><span id="moreComment<%= notification.comment._id %>" style="display: none;"><%= notification.comment.text.substring(20) %></span>
+                    <button id="toggleCommentBtn<%= notification.comment._id %>" class="text-sm text-gray-600" onclick="toggleComment('<%= notification.comment._id %>')">...more</button>"
                 <% } else { %>
-                  <a class="px-2.5 py-1.5 bg-blue-500 text-xs rounded-md" href="/follow/<%= notification.fromUser._id %>">Follow</a>
+                  "<%= notification.comment.text %>"
+                <% } %>
+              <% } else if (notification.type === 'reply') { %>
+                replied to your reply:
+                <% if (notification.replyText.length > 20) { %>
+                    "<span id="commentText<%= notification._id %>"><%= notification.replyText.substring(0,20) %></span>
+                    <span id="moreComment<%= notification._id %>" style="display: none;"><%= notification.replyText.substring(20) %></span>
+                    <button id="toggleCommentBtn<%= notification._id %>" class="text-sm text-gray-600" onclick="toggleComment('<%= notification._id %>')">...more</button>"
+                  <% } else { %>
+                    "<%= notification.replyText %>"
+                  <% } %>
               <% } %>
-            <% } else if (notification.post && notification.post.picture) { %>
-              <div class="w-[10vw] h-[10vw] bg-sky-100 overflow-hidden">
-                <img class="w-full h-full object-cover" src="/images/uploads/<%= notification.post.picture %>" alt="">
-              </div>
-            <% } %>
+            </h4>
+            <span class="text-xs opacity-30"><%= dater(notification.createdAt) %> ago</span>
+            <!-- <div class="reply flex items-center gap-2">
+              <% if (notification.type === 'comment' || notification.type === 'reply') { %>
+                <% if (notification.type === 'comment') { %>
+                  <button id="commentId<%= notification.comment._id %>" onclick="ReplyToComment('<%= notification.comment._id %>')" class="text-sm text-gray-400" data-comment-id="<%= notification.comment._id %>">Reply</button>
+                <% } %>
+              <% } %>
+            </div> -->
           </div>
         </div>
-      </a>
-    <% }); %>
-  <% } %>
-</div>
+        <div class="flex justify-end item-center p-1">
+          <% if (notification.type === 'follow' || notification.type === 'unfollow') { %>
+            <% if(user.following.includes(notification.fromUser._id)){ %>
+              <a class="px-2.5 py-1.5 bg-zinc-800 text-xs rounded-md" href="/follow/<%= notification.fromUser._id %>">Following</a>
+            <% } else { %>
+              <a class="px-2.5 py-1.5 bg-blue-500 text-xs rounded-md" href="/follow/<%= notification.fromUser._id %>">Follow</a>
+            <% } %>
+          <% } else if (notification.post && notification.post.picture) { %>
+            <div class="w-10 h-10 md:w-12 md:h-12 bg-sky-100 overflow-hidden">
+              <img class="w-full h-full object-cover" src="/images/uploads/<%= notification.post.picture %>" alt="">
+            </div>
+          <% } %>
+        </div>
+      </div>
+      <% }); %>
+      <% } %>
+    </div>
+
+<script>
+  function toggleComment(commentId) {
+    var moreText = document.getElementById(`moreComment${commentId}`);
+    var btnText = document.getElementById(`toggleCommentBtn${commentId}`);
+    var commentText = document.getElementById(`commentText${commentId}`);
+
+    if (moreText.style.display === "none") {
+      moreText.style.display = "inline";
+      btnText.textContent = "...less";
+    } else {
+      moreText.style.display = "none";
+      btnText.textContent = "...more";
+    }
+  }
+    
+</script>
 <% include ./partials/footer.ejs %>

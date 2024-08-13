@@ -9,6 +9,7 @@ const messageModel = require("../models/message");
 const postModel = require("../models/posts");
 const storyModel = require("../models/story");
 const Notification = require("../models/notification");
+const commentModel = require('../models/comments');
 
 passport.use(new localStrategy(userModel.authenticate()));
 const upload = require("../utils/multer");
@@ -95,11 +96,18 @@ router.get("/feed", isLoggedIn, async function (req, res) {
         s.user.id === story.user.id
       ))
     );
-    // console.log(uniqueStories)
 
     const lastReceivedMessageCount = await countLastReceivedMessages(user._id);
 
-    const posts = await postModel.find().populate("user");
+    const posts = await postModel.find()
+      .populate("user")
+      .populate({
+        path: 'comments',
+        populate: [
+          { path: 'user' },
+          { path: 'replies.user' }
+        ]
+      });
 
     res.render("feed", {
       footer: true,
@@ -296,15 +304,17 @@ router.get("/chat/:user", isLoggedIn, async function (req, res) {
 
 router.get("/notifications", isLoggedIn, async function (req, res) {
   try {
-    const user = await userModel.findOne({ username: req.session.passport.user }).populate({
-      path: 'notifications',
-      populate: { path: 'fromUser post' }
-    });
+    const userId = req.user._id;
+    const notifications = await Notification.find({ user: userId })
+      .populate('fromUser', 'username picture')
+      .populate('post', 'picture')
+      .populate('comment', 'text')
+      .sort({ createdAt: -1 });
 
     res.render("notifications", {
       footer: false,
-      user,
-      notifications: user.notifications,
+      user: req.user,
+      notifications: notifications,
       dater: utils.formatRelativeTime,
     });
   } catch (error) {
@@ -497,6 +507,146 @@ router.delete('/stories/:id', isLoggedIn, async (req, res) => {
   } catch (error) {
     console.error('Error deleting story:', error);
     res.status(500).send("Internal Server Error");
+  }
+});
+
+router.post('/:postId/comment', async (req, res) => {
+  try {
+    const { text } = req.body;
+    const { postId } = req.params;
+    const userId = req.user._id;
+
+    const comment = new commentModel({
+      user: userId,
+      post: postId,
+      text,
+      date: new Date()
+    });
+
+    const savedComment = await comment.save();
+    await postModel.findByIdAndUpdate(postId, {
+      $push: { comments: savedComment._id }
+    });
+
+    const populatedComment = await commentModel.findById(savedComment._id).populate('user');
+
+    const post = await postModel.findById(postId);
+    if (!post.user.equals(userId)) {
+      const notification = await Notification.create({
+        type: 'comment',
+        user: post.user,
+        fromUser: userId,
+        post: postId,
+        comment: savedComment._id
+      });
+
+      const postOwner = await userModel.findById(post.user);
+      postOwner.notifications.push(notification._id);
+      await postOwner.save();
+    }
+
+    res.status(200).json(populatedComment);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+router.post('/:commentId/reply', async (req, res) => {
+  try {
+    const { text ,postId} = req.body;
+    const { commentId } = req.params;
+    const userId = req.user._id;
+
+    const reply = {
+      user: userId,
+      text,
+      date: new Date(),
+      post: postId
+    };
+
+    const updatedComment = await commentModel.findByIdAndUpdate(
+      commentId,
+      { $push: { replies: reply } },
+      { new: true }
+    ).populate('replies.user');
+
+    const newReply = updatedComment.replies[updatedComment.replies.length - 1];
+
+    if (!updatedComment.user.equals(userId)) {
+      const notification = await Notification.create({
+        type: 'reply',
+        user: updatedComment.user,
+        fromUser: userId,
+        reply: newReply._id,
+        post: postId,
+        replyText: text
+      });
+
+      const commentOwner = await userModel.findById(updatedComment.user);
+      commentOwner.notifications.push(notification._id);
+      await commentOwner.save();
+    }
+
+    res.status(200).json(newReply);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+router.get('/likeComment/:commentId', isLoggedIn, async (req, res) => {
+  try {
+    const commentId = req.params.commentId;
+    const userId = req.user._id; 
+
+    const comment = await commentModel.findById(commentId);
+    if (!comment) {
+      return res.status(404).json({ message: 'Comment not found' });
+    }
+
+    const hasLiked = comment.likes.includes(userId);
+
+    if (hasLiked) {
+      comment.likes = comment.likes.filter(id => !id.equals(userId));
+    } else {
+      comment.likes.push(userId);
+    }
+
+    await comment.save();
+
+    res.status(200).json({ message: 'Success', likes: comment.likes.length, hasLiked: !hasLiked });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error });
+  }
+});
+
+router.get('/likeReply/:replyId', isLoggedIn, async (req, res) => {
+  try {
+    const replyId = req.params.replyId;
+    const userId = req.user._id;
+
+    const comment = await commentModel.findOne({ 'replies._id': replyId });
+    if (!comment) {
+      return res.status(404).json({ message: 'Reply not found' });
+    }
+
+    const reply = comment.replies.id(replyId);
+    if (!reply) {
+      return res.status(404).json({ message: 'Reply not found' });
+    }
+
+    const hasLiked = reply.likes.includes(userId);
+
+    if (hasLiked) {
+      reply.likes = reply.likes.filter(id => !id.equals(userId));
+    } else {
+      reply.likes.push(userId);
+    }
+
+    await comment.save();
+
+    res.status(200).json({ message: 'Success', likes: reply.likes.length, hasLiked: !hasLiked });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error });
   }
 });
 

@@ -10,7 +10,7 @@
 <div class="chats w-full min-h-screen bg-zinc-900 text-white py-3">
     <div class="nav flex justify-between items-center px-2 py-2 fixed top-0 w-full bg-zinc-900 border-b border-gray-200">
         <div class="flex items-center gap-2 justify-between">
-            <a href="/inbox"><i class="text-[1.4rem] ri-arrow-left-s-line"></i></a>
+            <a href="javascript:history.back()"><i class="text-[1.4rem] ri-arrow-left-s-line"></i></a>
             <div class="w-[10vw] h-[10vw] bg-sky-100 rounded-full overflow-hidden">
                 <img class="w-full h-full object-cover" src="/images/uploads/<%= followerUser.picture %>" alt="">
             </div>
@@ -192,7 +192,7 @@
             socket.emit('send-private-message', messageObject);
         }
     });
-
+    
     function scrollToBottom() {
         const scrollableDiv = document.getElementById('scrollableDiv');
         scrollableDiv.scrollTop = scrollableDiv.scrollHeight;

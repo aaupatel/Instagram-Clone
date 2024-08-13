@@ -3,11 +3,17 @@
     <div class="w-full px-4 flex items-center justify-between">
       <img class="w-1/4" src="/images/logo.png" alt="">
       <div class="icons -mt-2 flex gap-5 items-center">
-        <a href="/notifications"><i class="text-[1.4rem] ri-heart-3-line relative"></i>
-            <h1 class="absolute z-10 top-1.5 right-12 mr-2 text-red-500 rounded-full text-2xl font-bold"><%= user.notifications.length > 0 ? '•' : '' %></h1>
+        <a href="/notifications">
+          <i class="text-[1.4rem] ri-heart-3-line relative"></i>
+          <h1 class="absolute z-10 top-1.5 right-12 mr-2 text-red-500 rounded-full text-2xl font-bold">
+            <%= user.notifications.length > 0 ? '•' : '' %>
+          </h1>
         </a>
-        <a href="/inbox"><i class="text-[1.4rem] ri-messenger-line relative"></i>
-          <h1 class="absolute z-10 top-3 right-2 bg-red-500 rounded-full py-0.5 px-1 text-sm font-bold"><%= lastReceivedMessageCount %></h1>
+        <a href="/inbox">
+          <i class="text-[1.4rem] ri-messenger-line relative"></i>
+          <h1 class="absolute z-10 top-3 right-2 bg-red-500 rounded-full py-0.5 px-1 text-sm font-bold">
+            <%= lastReceivedMessageCount %>
+          </h1>
         </a>
       </div>
     </div>
@@ -16,8 +22,7 @@
     <div class="story px-3 flex gap-3 overflow-auto mt-2">
       <a href="/story/<%= user._id %>">
         <div class="circle flex-shrink-0">
-          <div
-            class="gradient w-[16vw] h-[16vw] bg-sky-100 rounded-full bg-gradient-to-r from-purple-700 to-orange-500 flex items-center justify-center">
+          <div class="gradient w-[16vw] h-[16vw] bg-sky-100 rounded-full bg-gradient-to-r from-purple-700 to-orange-500 flex items-center justify-center">
             <div class="inner w-[92%] h-[92%] rounded-full overflow-hidden">
               <img class="w-full h-full object-cover" src="/images/uploads/<%= user.picture %>" alt="">
             </div>
@@ -34,14 +39,16 @@
               </div>
             </div>
           </div>
-          <h1 class="text-center text-xs"><%= story.user.username.length > 8 ? story.user.username.substring(0, 8) + "..." : story.user.username %></h1>
+          <h1 class="text-center text-xs">
+            <%= story.user.username.length > 8 ? story.user.username.substring(0, 8) + "..." : story.user.username %>
+          </h1>
         </a>
-        <% }) %>
+      <% }) %>
     </div>
     <div class="border-b border-slate-400 mt-2"></div>
 
     <!-- Posts -->
-    <div class="posts parent mb-20">
+    <div class="posts parent mb-10">
       <% posts.reverse().forEach(function(post){ %>
         <div class="post mt-4 w-full min-h-[50vh]">
           <div class="title px-4 flex items-center gap-2">
@@ -49,170 +56,559 @@
               <img class="w-full h-full object-cover" src="/images/uploads/<%= post.user.picture %>" alt="">
             </div>
             <h4 class="text-sm">
-              <%= post.user.username.length > 8 ? post.user.username.substring(0, 8) + "..." : post.user.username %>
+              <a href="/profile/<%= post.user._id %>" class="outline-none">
+                <%= post.user.username.length > 8 ? post.user.username.substring(0, 8) + "..." : post.user.username %>
+              </a>
             </h4>
             <h6 class="text-xs opacity-30">
               <%= dater(new Date(post.date)) %>
             </h6>
           </div>
           <div class="relative w-full h-full mt-4 bg-sky-100 overflow-hidden">
-            <img data-postid="<%= post.id %>" class="postimg w-full h-full object-cover"
-              src="/images/uploads/<%= post.picture %>" alt="">
+            <img data-postid="<%= post.id %>" class="postimg w-full h-full object-cover" src="/images/uploads/<%= post.picture %>" alt="">
           </div>
-          <div class="options w-full px-4 flex justify-between items-center text-[1.4rem]">
+          <div class="options w-full px-4 flex justify-between items-center text-[1.5rem]">
             <div class="flex gap-3 mt-2">
-              <% if(post.like.indexOf(user._id)===-1){ %>
+              <% if(post.like.indexOf(user._id) === -1) { %>
                 <i class="heart ri-heart-3-line"></i>
-                <% } else { %>
-                  <i class="heart ri-heart-3-fill text-red-500"></i>
-                  <% } %>
-                    <i class="ri-chat-3-line"></i>
-                    <i class="ri-share-circle-line"></i>
-            </div>
-            <% if(user.saved.indexOf(post.id)===-1){ %>
-              <i data-postid="<%= post.id %>" class="save ri-bookmark-line"></i>
               <% } else { %>
-                <i data-postid="<%= post.id %>" class="save ri-bookmark-fill text-zinc-100"></i>
-                <% } %>
+                <i class="heart ri-heart-3-fill text-red-500"></i>
+              <% } %>
+              <i class="comments-toggler ri-chat-3-line" data-post-id="<%= post._id %>"></i>
+              <i class="ri-share-circle-line"></i>
+            </div>
+            <% if(user.saved.indexOf(post.id) === -1) { %>
+              <i data-postid="<%= post.id %>" class="save ri-bookmark-line"></i>
+            <% } else { %>
+              <i data-postid="<%= post.id %>" class="save ri-bookmark-fill text-zinc-100"></i>
+            <% } %>
           </div>
           <h3 class="likeval px-4 mt-2 text-sm leading-none tracking-tight">
             <%= post.like.length %> likes
           </h3>
           <h2 class="text-white font-light text-sm mt-2 px-4">
-            <span class="font-semibold">
-              <%= post.user.username.length > 50 ? post.user.username.substring(0, 50) + "..." : post.user.username %>
+            <span class="font-bold">
+              <a href="/profile/<%= post.user._id %>" class="outline-none">
+                <%= post.user.username.length > 30 ? post.user.username.substring(0, 30) + "..." : post.user.username %>
+              </a>
             </span>•
             <% if (post.caption.length > 70) { %>
-              <span id="caption<%= post._id %>">
-                <%= post.caption.substring(0, 70) %><span id="more<%= post._id %>" style="display:none;"><%= post.caption.substring(50) %></span>
-                <p class="text-gray-500 font-semibold text-sm" onclick="toggleCaption('<%= post._id %>')">...more</p>
+              <span class="text-gray-300 font-semibold text-sm break-all">
+                <span id="captionText<%= post._id %>"><%= post.caption.substring(0, 70) %></span>
+                <span id="moreCaption<%= post._id %>" style="display: none;"><%= post.caption.substring(70) %></span>
+                <button id="toggleCaptionBtn<%= post._id %>" class="text-sm text-gray-600" onclick="toggleCaption('<%= post._id %>')">...more</button>
               </span>
             <% } else { %>
-              <%= post.caption %>
+              <span class="text-gray-300 font-semibold text-sm break-all"><%= post.caption %></span>
             <% } %>
+            
           </h2>
-
-          <h2 class="text-gray-500 font-semibold text-sm mt-1 px-4">View all 00 comments</h2>
+          <h2 class="comments-toggler text-gray-500 font-semibold text-sm mt-1 px-4" data-post-id="<%= post._id %>">View all <%= post.comments.length %> comments</h2>
         </div>
-        <% }) %>
+
+        <!-- Comments modal -->
+        <div class="comments-modal hidden fixed top-[2%] w-full h-full bg-zinc-800 rounded-t-lg z-[20]" data-post-id="<%= post._id %>">
+          <div class="shadow-lg shadow-blue-800/5 py-2">
+            <h1 class="down-modal text-lg text-gray-500 flex justify-center item-center text-center">
+              <i class="text-[1.5rem] ri-arrow-down-s-line"></i>
+            </h1>
+            <h2 class="text-sm font-semibold text-white text-center">Comments</h2>
+          </div>
+
+          <div id="comments-container-<%= post._id %>" class="comments-content overflow-y-scroll scrollbar-hide h-[82%] px-2">
+            <% post.comments.forEach(function(comment) { %>
+              <div class="block px-2 py-1">
+                <div class="flex gap-2">
+                  <div class="w-[9vw] h-[9vw] bg-sky-100 rounded-full overflow-hidden self-start">
+                    <img class="w-full h-full object-cover" src="/images/uploads/<%= comment.user.picture %>" alt="Profile Image">
+                  </div>
+                  <div class="flex-1">
+                    <a href="/profile/<%= comment.user._id %>" class="outline-none">
+                      <h4 class="text-sm font-semibold text-white"><%= comment.user.username.length > 10 ? comment.user.username.substring(0, 10) + "..." : comment.user.username %>
+                    </a>
+                      <span class="text-sm text-gray-600 ml-2"><%= dater(new Date(comment.date)) %></span>
+                    </h4>
+                    <% if (comment.text.length > 70) { %>
+                      <h6 class="text-sm text-white break-all">
+                        <span id="commentText<%= comment._id %>"><%= comment.text.substring(0, 70) %></span>
+                        <span id="moreComment<%= comment._id %>" style="display: none;"><%= comment.text.substring(70) %></span>
+                        <button id="toggleCommentBtn<%= comment._id %>" class="text-sm text-gray-600" onclick="toggleComment('<%= comment._id %>')">...more</button>
+                      </h6>
+                    <% } else { %>
+                      <h6 class="text-sm text-white break-all"><%= comment.text %></h6>
+                    <% } %>
+                    <div class="flex items-center gap-4 mt-0.5">
+                      <span class="likeval text-sm text-gray-600"><%= comment.likes.length %> likes</span>
+                      <button class="text-sm text-gray-600 reply-btn" data-comment-id="<%= comment._id %>" data-comment-username="<%= comment.user.username %>" data-comment-picture="/images/uploads/<%= comment.user.picture %>" data-post-id="<%= post._id %>">Reply</button>
+                    </div>
+                  </div>
+                  <button class="like-Comment text-gray-600 flex items-center self-start mt-1" data-comment-id="<%= comment._id %>" data-post-id="<%= post._id %>">
+                    <% if(comment.likes.indexOf(user._id) === -1) { %>
+                      <i class="heart ri-heart-line text-xl"></i>
+                    <% } else { %>
+                      <i class="heart ri-heart-3-fill text-red-500 text-xl"></i>
+                    <% } %>
+                  </button>
+                </div>
+                <div id="replies-container-<%= comment._id %>" class="ml-8">
+                  <% comment.replies.forEach(function(reply) { %>
+                    <div class="flex gap-2 mt-2">
+                      <div class="w-[9vw] h-[9vw] bg-sky-100 rounded-full overflow-hidden self-start">
+                        <img class="w-full h-full object-cover" src="/images/uploads/<%= reply.user.picture %>" alt="Profile Image">
+                      </div>
+                      <div class="flex-1">
+                        <h4 class="text-sm font-semibold text-white">
+                          <a href="/profile/<%= reply.user._id %>" class="outline-none">
+                            <%= reply.user.username.length > 8 ? reply.user.username.substring(0, 8) + "..." : reply.user.username %>
+                          </a>
+                          <span class="text-sm text-gray-600 ml-2"><%= dater(new Date(reply.date)) %></span>
+                        </h4>
+                        <% if (reply.text.length > 35) { %>
+                          <h6 class="text-sm text-white break-all">
+                            <span id="commentText<%= reply._id %>"><%= reply.text.substring(0, 35) %></span>
+                            <span id="moreComment<%= reply._id %>" style="display: none;"><%= reply.text.substring(70) %></span>
+                            <button id="toggleCommentBtn<%= reply._id %>" class="text-sm text-gray-600" onclick="toggleComment('<%= reply._id %>')">...more</button>
+                          </h6>
+                        <% } else { %>
+                          <h6 class="text-sm text-white break-all"><%= reply.text %></h6>
+                        <% } %>
+                        <div class="flex items-center gap-4 mt-0.5">
+                          <span class="likeval text-sm text-gray-600"><%= reply.likes.length %> likes</span>
+                          <button class="text-sm text-gray-600 reply-btn" data-comment-id="<%= comment._id %>" data-comment-username="<%= reply.user.username %>" data-comment-picture="/images/uploads/<%= reply.user.picture %>" data-post-id="<%= post._id %>">Reply</button>
+                        </div>
+                      </div>
+                      <button class="like-Reply text-gray-600 flex items-center self-start mt-1" data-reply-id="<%= reply._id %>" data-post-id="<%= post._id %>">
+                        <% if(reply.likes.indexOf(user._id) === -1) { %>
+                          <i class="heart ri-heart-line text-xl"></i>
+                        <% } else { %>
+                          <i class="heart ri-heart-3-fill text-red-500 text-xl"></i>
+                        <% } %>
+                      </button>
+                    </div>
+                  <% }) %>
+                </div>
+              </div>  
+            <% }) %>
+
+          </div>
+
+          <!--Input Section-->
+          <div class="commenting-section bg-zinc-900 w-full absolute bottom-4 left-0 flex flex-col items-center">
+            <div class="hidden reply-to-user w-full bg-zinc-700 px-3 py-1">
+              <div class="w-full flex items-center gap-2 justify-between py-1">
+                <img src="" alt="" class="rounded-full w-7 h-7 object-cover">
+                <h1 class="flex-1 text-sm text-gray-400 py-1">Replying to <span id="reply-username" class="text-xs font-semibold text-white">username</span></h1>
+                <button class="remove-btn text-gray-400 text-sm"><i class="text-[1.2rem] ri-close-circle-line"></i></button>
+              </div>
+              <p class="text-xs text-center text-gray-500 px-3 font-semibold">Welcome to the conversation. When commenting, please treat other people with respect.</p>
+            </div>            
+            <div class="input-section w-full flex items-center gap-2 px-3 py-1 border-t-[1px] border-gray-500/50">
+              <img src="/images/uploads/<%= user.picture %>" alt="" class="rounded-full w-8 h-8 object-cover">
+              <input data-postid="<%= post._id %>" class="comment-box flex-1 bg-transparent outline-none border-none text-sm text-white" type="text" placeholder="Write a comment...">
+              <button class="comment-btn ml-0.5 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-full px-3">
+                <i class="text-[1.4rem] ri-arrow-up-line"></i>
+              </button>
+            </div>
+          </div>
+
+        </div>
+      <% }); %>
     </div>
   </div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"
-    integrity="sha512-7eHRwcbYkK4d9g/6tD/mhkf++eoTHwpNM9woBxtPUBWm67zeAfFC+HrdoE2GanKeocly/VxeLvIqwvCdk7qScg=="
-    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-  <script>
-    function toggleCaption(postId) {
-      var moreText = document.getElementById(`more${postId}`);
-      var btnText = document.getElementById(`caption${postId}`).querySelector("p");
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" integrity="sha512-7eHRwcbYkK4d9g/6tD/mhkf++eoTHwpNM9woBxtPUBWm67zeAfFC+HrdoE2GanKeocly/VxeLvIqwvCdk7qScg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script>
+
+
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.like-Comment').forEach(button => {
+      button.addEventListener('click', function() {
+        const commentId = this.dataset.commentId;
+        const postId = this.dataset.postId;
+        const heartIcon = this.querySelector('.heart');
+        const likesVal = this.previousElementSibling.querySelector('.likeval');
   
-      if (moreText.style.display === "none") {
-        moreText.style.display = "inline";
-        btnText.textContent = "...less";
+        let like;
+        if (heartIcon.classList.contains('ri-heart-line')) {
+          heartIcon.classList.remove('ri-heart-line');
+          heartIcon.classList.add('ri-heart-3-fill', 'text-red-500');
+          likesVal.textContent = parseInt(likesVal.textContent) + 1 + " likes"; 
+          like = true;
+        } else {
+          heartIcon.classList.remove('ri-heart-3-fill', 'text-red-500');
+          heartIcon.classList.add('ri-heart-line');
+          likesVal.textContent = parseInt(likesVal.textContent) - 1 + " likes";
+          like = false;
+        }
+
+        fetch(`/likeComment/${commentId}`)
+        .then((raw) => raw.json())
+        .then(data => {
+          // console.log(`Like Comment ID: ${commentId}, Likes: ${data.likes}`);
+        })
+        .catch(error => {
+          console.error('Error:', error);
+        });
+        // console.log(`Like Comment ID: ${commentId}, Post ID: ${postId}`);
+      });
+    });
+  
+    document.querySelectorAll('.like-Reply').forEach(button => {
+      button.addEventListener('click', function() {
+        const replyId = this.dataset.replyId;
+        const postId = this.dataset.postId;
+        const heartIcon = this.querySelector('.heart');
+        const likesVal = this.previousElementSibling.querySelector('.likeval'); 
+  
+        let like;
+        if (heartIcon.classList.contains('ri-heart-line')) {
+          heartIcon.classList.remove('ri-heart-line');
+          heartIcon.classList.add('ri-heart-3-fill', 'text-red-500');
+          likesVal.textContent = parseInt(likesVal.textContent) + 1 + " likes"; 
+          like = true;
+        } else {
+          heartIcon.classList.remove('ri-heart-3-fill', 'text-red-500');
+          heartIcon.classList.add('ri-heart-line');
+          likesVal.textContent = parseInt(likesVal.textContent) - 1 + " likes";
+          like = false;
+        }
+        fetch(`/likeReply/${replyId}`)
+        .then(response => response.json())
+        .then(data => {
+          // console.log(`Like Reply ID: ${replyId}, Likes: ${data.likes}`);
+        })
+        .catch(error => {
+          console.error('Error:', error);
+        });
+  
+        // console.log(`Like Reply ID: ${replyId}, Post ID: ${postId}`);
+      });
+    });
+  });
+  
+  function toggleComment(commentId) {
+    var moreText = document.getElementById(`moreComment${commentId}`);
+    var btnText = document.getElementById(`toggleCommentBtn${commentId}`);
+    var commentText = document.getElementById(`commentText${commentId}`);
+
+    if (moreText.style.display === "none") {
+      moreText.style.display = "inline";
+      btnText.textContent = "...less";
+    } else {
+      moreText.style.display = "none";
+      btnText.textContent = "...more";
+    }
+  }
+
+  function toggleCaption(postId) {
+    var moreText = document.getElementById(`moreCaption${postId}`);
+    var btnText = document.getElementById(`toggleCaptionBtn${postId}`);
+    var captionText = document.getElementById(`captionText${postId}`);
+
+    if (moreText.style.display === "none") {
+      moreText.style.display = "inline";
+      btnText.textContent = "...less";
+    } else {
+      moreText.style.display = "none";
+      btnText.textContent = "...more";
+    }
+  }
+
+  function formatRelativeTime(date) {
+    const parsedDate = new Date(date);
+    const now = new Date();
+    const diff = now - parsedDate;
+
+    const seconds = Math.floor(diff / 1000);
+
+    if (seconds < 60) {
+      return `${seconds}s`;
+    }
+
+    const minutes = Math.floor(seconds / 60);
+
+    if (minutes < 60) {
+      return `${minutes}m`;
+    }
+
+    const hours = Math.floor(minutes / 60);
+
+    if (hours < 24) {
+      return `${hours}h`;
+    }
+
+    const days = Math.floor(hours / 24);
+
+    if (days < 7) {
+      return `${days}d`;
+    }
+
+    const weeks = Math.floor(days / 7);
+
+    return `${weeks}w`;
+  }
+
+  document.querySelector(".parent").addEventListener("click", function (e) {
+    if (e.target.classList.contains("postimg")) {
+      var post = e.target.closest(".post");
+      var heartwithborder = post.querySelector(".heart");
+      if (heartwithborder.classList.contains("ri-heart-3-line")) {
+        heartwithborder.classList.remove("ri-heart-3-line");
+        heartwithborder.classList.add("ri-heart-3-fill", "text-red-500");
       } else {
-        moreText.style.display = "none";
-        btnText.textContent = "...more";
+        heartwithborder.classList.remove("ri-heart-3-fill", "text-red-500");
+        heartwithborder.classList.add("ri-heart-3-line");
       }
-    }
+      fetch(`/like/${e.target.dataset.postid}`)
+        .then((raw) => raw.json())
+        .then((response) => {
+          post.querySelector(".likeval").textContent =
+            response.like.length + " likes";
+        });
 
-    function formatRelativeTime(date) {
-      const now = new Date();
-      const diff = now - date;
+      var icon = document.createElement("i");
+      icon.classList.add(
+        "ri-heart-3-fill",
+        "text-red-700",
+        "text-6xl",
+        "absolute",
+        "top-1/2",
+        "left-1/2",
+        "-translate-x-[50%]",
+        "-translate-y-[50%]",
+        "z-[9]"
+      );
+      e.target.parentNode.appendChild(icon);
 
-      const seconds = Math.floor(diff / 1000);
+      gsap.from(icon, {
+        scale: 0.5,
+        y: 30,
+        opacity: 0,
+        ease: Expo,
+        duration: 0.3,
+      });
 
-      if (seconds < 60) {
-        return `${seconds}s`;
-      }
-
-      const minutes = Math.floor(seconds / 60);
-
-      if (minutes < 60) {
-        return `${minutes}m`;
-      }
-
-      const hours = Math.floor(minutes / 60);
-
-      if (hours < 24) {
-        return `${hours}h`;
-      }
-
-      const days = Math.floor(hours / 24);
-
-      if (days < 7) {
-        return `${days}d`;
-      }
-
-      const weeks = Math.floor(days / 7);
-
-      return `${weeks}w`;
-    }
-
-    document.querySelector(".parent")
-      .addEventListener("click", function (dets) {
-        if (dets.target.classList.contains("postimg")) {
-          var post = dets.target.parentNode.parentNode;
-          var heartwithborder = post.querySelector(".heart");
-          if (heartwithborder.classList.contains("ri-heart-3-line")) {
-            heartwithborder.classList.remove("ri-heart-3-line")
-            heartwithborder.classList.add("ri-heart-3-fill")
-            heartwithborder.classList.add("text-red-500")
-            // heartwithborder.style.color = "red";
+      gsap.to(icon, {
+        scale: 0,
+        y: -30,
+        opacity: 0,
+        duration: 0.3,
+        ease: Expo,
+        delay: 0.3,
+        onComplete: () => {
+          e.target.parentNode.removeChild(icon);
+        },
+      });
+    } else if (e.target.classList.contains("save")) {
+      var id = e.target.dataset.postid;
+      fetch(`/save/${id}`)
+        .then((raw) => raw.json())
+        .then((result) => {
+          if (!e.target.classList.contains("ri-bookmark-line")) {
+            e.target.classList.remove("ri-bookmark-fill", "text-zinc-100");
+            e.target.classList.add("ri-bookmark-line");
+          } else {
+            e.target.classList.remove("ri-bookmark-line");
+            e.target.classList.add("ri-bookmark-fill", "text-zinc-100");
           }
-          else {
-            heartwithborder.classList.remove("ri-heart-3-fill")
-            heartwithborder.classList.remove("text-red-500")
-            heartwithborder.classList.add("ri-heart-3-line")
-          }
-          fetch(`/like/${dets.target.dataset.postid}`)
-            .then(raw => raw.json())
-            .then(response => {
-              // console.log(response.like.length);
-              post.querySelector(".likeval").textContent = response.like.length + " likes"
-            })
-
-          var icon = document.createElement("i");
-          icon.classList.add("ri-heart-3-fill");
-          icon.classList.add("text-red-700", "text-6xl", 'absolute', 'top-1/2', 'left-1/2', '-translate-x-[50%]', '-translate-y-[50%]', 'z-[9]');
-          dets.target.parentNode.appendChild(icon);
-
-          gsap.from(icon, {
-            scale: .5,
-            y: 30,
-            opacity: 0,
-            ease: Expo,
-            duration: .3
-          })
-
-          gsap.to(icon, {
-            scale: 0,
-            y: -30,
-            opacity: 0,
-            duration: .3,
-            ease: Expo,
-            delay: .3,
-            onComplete: () => {
-              dets.target.parentNode.removeChild(icon);
-            }
-          })
+        });
+    } else if (e.target.classList.contains("comments-toggler")) {
+      var postId = e.target.getAttribute("data-post-id");
+      document.querySelectorAll(".comments-modal").forEach((modal) => {
+        if (modal.getAttribute("data-post-id") === postId) {
+          modal.style.display = "block";
         }
-        else if (dets.target.classList.contains("save")) {
-          var id = dets.target.dataset.postid;
-          fetch(`/save/${id}`)
-            .then(raw => raw.json())
-            .then(result => {
-              if (!dets.target.classList.contains("ri-bookmark-line")) {
-                dets.target.classList.remove("ri-bookmark-fill", "text-zinc-100");
-                dets.target.classList.add("ri-bookmark-line")
-              }
-              else {
-                dets.target.classList.remove("ri-bookmark-line")
-                dets.target.classList.add("ri-bookmark-fill", "text-zinc-100")
-              }
-            })
+      });
+    }
+  });
+
+  document.querySelectorAll(".down-modal").forEach((button) => {
+    button.addEventListener("click", () => {
+      document.querySelectorAll(".comments-modal").forEach((modal) => {
+        modal.style.display = "none";
+      });
+      location.reload();
+    });
+  });
+
+  document.querySelectorAll(".comment-btn").forEach((button) => {
+    button.addEventListener("click", function () {
+      const commentBox =
+        this.closest(".input-section").querySelector(".comment-box");
+      const postId = commentBox.dataset.postid;
+      const comment = commentBox.value.trim();
+
+      const replyUsername = commentBox.getAttribute("data-reply-username");
+      const commentId = commentBox.getAttribute("data-reply-comment-id");
+
+      if (replyUsername && commentId) {
+        // console.log(`Replying to comment ID: ${commentId} by ${replyUsername} on post ID: ${postId} with comment = ${comment}`);
+        if (comment === "") return;
+        fetch(`/${commentId}/reply`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ text: comment, postId: postId }),
+        })
+          .then((response) => response.json())
+          .then((reply) => {
+            appendReply(commentId, reply, postId);
+            commentBox.value = "";
+            commentBox.removeAttribute("data-reply-username");
+            commentBox.removeAttribute("data-reply-comment-id");
+          })
+          .catch((error) => console.error("Error:", error));
+      } else {
+        // console.log(`Posting new comment on post ID: ${postId} with comment = ${comment}`);
+        if (comment === "") return;
+        fetch(`/${postId}/comment`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ text: comment }),
+        })
+          .then((response) => response.json())
+          .then((comment) => {
+            appendComment(postId, comment);
+            commentBox.value = "";
+          })
+          .catch((error) => console.error("Error:", error));
+      }
+    });
+  });
+
+  document.querySelectorAll(".reply-btn").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      const postId = this.dataset.postId;
+      const commentId = this.dataset.commentId;
+      const commentUsername = this.dataset.commentUsername;
+      const commentPicture = this.dataset.commentPicture;
+
+      // console.log(`Replying to comment ID: ${commentId} by ${commentUsername} on post ID: ${postId}`);
+
+      const replyingToSection = document.querySelector(
+        `.comments-modal[data-post-id="${postId}"] .reply-to-user`
+      );
+      if (replyingToSection) {
+        replyingToSection.classList.remove("hidden");
+        const usernameElement =
+          replyingToSection.querySelector("#reply-username");
+        const pictureElement = replyingToSection.querySelector("img");
+        if (usernameElement && pictureElement) {
+          usernameElement.textContent =
+            commentUsername.length > 20
+              ? commentUsername.substring(0, 20) + "..."
+              : commentUsername;
+          pictureElement.src = commentPicture;
+        } else {
+          console.error("Reply-to section elements not found");
         }
-      })
-  </script>
+        const commentBox = document.querySelector(
+          `.comments-modal[data-post-id="${postId}"] .comment-box`
+        );
+        if (commentBox) {
+          commentBox.placeholder = `Reply to ${
+            commentUsername.length > 30
+              ? commentUsername.substring(0, 30) + "..."
+              : commentUsername
+          }`;
+          commentBox.setAttribute("data-reply-username", commentUsername);
+          commentBox.setAttribute("data-reply-comment-id", commentId);
+        } else {
+          console.error("Comment box not found");
+        }
+      } else {
+        console.error("Reply-to section not found");
+      }
+    });
+  });
 
+  document.querySelectorAll(".remove-btn").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      const replyingToSection = this.closest(".reply-to-user");
+      if (replyingToSection) {
+        replyingToSection.classList.add("hidden");
+        const commentBox = replyingToSection
+          .closest(".comments-modal")
+          .querySelector(".comment-box");
+        if (commentBox) {
+          commentBox.placeholder = "Write a comment...";
+          commentBox.removeAttribute("data-reply-username");
+          commentBox.removeAttribute("data-reply-comment-id");
+        } else {
+          console.error("Comment box not found");
+        }
+      } else {
+        console.error("Reply-to section not found");
+      }
+    });
+  });
 
-  <% include ./partials/footer.ejs %>
+  function appendReply(commentId, reply, postId) {
+    const repliesContainer = document.getElementById(`replies-container-${commentId}`);
+    const formattedDate = formatRelativeTime(reply.date);
+    const newReplyHTML = `
+        <div class="flex gap-2 mt-2">
+            <div class="w-[9vw] h-[9vw] bg-sky-100 rounded-full overflow-hidden self-start">
+                <img class="w-full h-full object-cover" src="/images/uploads/${reply.user.picture}" alt="Profile Image">
+            </div>
+            <div class="flex-1">
+              <a href="/profile/${reply.user._id}" class="outline-none">
+                <h4 class="text-sm font-semibold text-white">
+                  ${reply.user ? (reply.user.username.length > 10 ? reply.user.username.substring(0, 10) + '...' : reply.user.username) : 'Unknown'}
+              </a>
+                  <span class="text-sm text-gray-600 ml-2">${formattedDate}</span>
+                </h4>
+                <h6 class="text-sm text-white break-all">${reply.text}</h6>
+                <div class="flex items-center gap-4 mt-0.5">
+                    <span class="text-sm text-gray-600">0 likes</span>
+                    <button class="text-sm text-gray-600 reply-btn" data-comment-id="${commentId}" data-comment-username="${reply.user.username}" data-comment-picture="/images/uploads/${reply.user.picture}" data-post-id="${postId}">Reply</button>
+                </div>
+            </div>
+            <button class="text-gray-600 flex items-center self-start mt-1">
+                <i class="ri-heart-line text-xl"></i>
+            </button>
+        </div>
+    `;
+    repliesContainer.insertAdjacentHTML('beforeend', newReplyHTML);
+  }
+
+  function appendComment(postId, comment) {
+    const commentsContainer = document.getElementById(`comments-container-${postId}`);
+    const formattedDate = formatRelativeTime(comment.date);
+    const picture = comment.user && comment.user.picture ? comment.user.picture : 'default.png';
+    const newCommentHTML = `
+        <a href="#" class="block px-2 py-1">
+            <div class="flex gap-2">
+                <div class="w-[9vw] h-[9vw] bg-sky-100 rounded-full overflow-hidden self-start">
+                    <img class="w-full h-full object-cover" src="/images/uploads/${picture}" alt="Profile Image">
+                </div>
+                <div class="flex-1">
+                  <a href="/profile/${comment.user._id}" class="outline-none">
+                    <h4 class="text-sm font-semibold text-white">
+                      ${comment.user ? (comment.user.username.length > 10 ? comment.user.username.substring(0, 10) + '...' : comment.user.username) : 'Unknown'}
+                  </a>
+                      <span class="text-sm text-gray-600 ml-2">${formattedDate}</span>
+                    </h4>
+                    <h6 class="text-sm text-white break-all">${comment.text}</h6>
+                    <div class="flex items-center gap-4 mt-0.5">
+                        <span class="text-sm text-gray-600">0 likes</span>
+                        <button class="text-sm text-gray-600 reply-btn" data-comment-id="${comment._id}" data-comment-username="${comment.user ? comment.user.username : 'Unknown'}" data-comment-picture="/images/uploads/${picture}" data-post-id="${postId}">Reply</button>
+                    </div>
+                </div>
+                <button class="text-gray-600 flex items-center self-start mt-1">
+                    <i class="ri-heart-line text-xl"></i>
+                </button>
+            </div>
+            <div id="replies-container-${comment._id}" class="ml-8"></div>
+        </a>
+    `;
+    commentsContainer.insertAdjacentHTML('beforeend', newCommentHTML);
+  }
+
+</script>
+
+<% include ./partials/footer.ejs %>

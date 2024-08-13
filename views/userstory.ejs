@@ -92,7 +92,7 @@
                       <img class="w-full h-full object-cover" src="/images/uploads/<%= viewer.userId.picture %>" alt="">
                   </div>
                     <h4 class="text-sm">
-                        <%= viewer.userId.username %>
+                      <%= viewer.userId.username.length > 30 ? viewer.userId.username.substring(0, 30) + "..." : viewer.userId.username %>
                     </h4>
                 </div>
                 <h1 class="flex items-center">
