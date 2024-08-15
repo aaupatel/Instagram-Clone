@@ -53,7 +53,7 @@
                   "<%= notification.comment.text %>"
                 <% } %>
               <% } else if (notification.type === 'reply') { %>
-                replied to your reply:
+                replied to your comment:
                 <% if (notification.replyText.length > 20) { %>
                     "<span id="commentText<%= notification._id %>"><%= notification.replyText.substring(0,20) %></span>
                     <span id="moreComment<%= notification._id %>" style="display: none;"><%= notification.replyText.substring(20) %></span>
@@ -76,9 +76,9 @@
         <div class="flex justify-end item-center p-1">
           <% if (notification.type === 'follow' || notification.type === 'unfollow') { %>
             <% if(user.following.includes(notification.fromUser._id)){ %>
-              <a class="px-2.5 py-1.5 bg-zinc-800 text-xs rounded-md" href="/follow/<%= notification.fromUser._id %>">Following</a>
+              <div><a class="px-2.5 py-1.5 bg-zinc-800 text-xs rounded-md" href="/follow/<%= notification.fromUser._id %>">Following</a></div>
             <% } else { %>
-              <a class="px-2.5 py-1.5 bg-blue-500 text-xs rounded-md" href="/follow/<%= notification.fromUser._id %>">Follow</a>
+              <div><a class="px-2.5 py-1.5 bg-blue-500 text-xs rounded-md" href="/follow/<%= notification.fromUser._id %>">Follow</a></div>
             <% } %>
           <% } else if (notification.post && notification.post.picture) { %>
             <div class="w-10 h-10 md:w-12 md:h-12 bg-sky-100 overflow-hidden">
@@ -87,9 +87,9 @@
           <% } %>
         </div>
       </div>
-      <% }); %>
-      <% } %>
-    </div>
+    <% }); %>
+  <% } %>
+</div>
 
 <script>
   function toggleComment(commentId) {

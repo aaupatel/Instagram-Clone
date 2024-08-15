@@ -1,9 +1,9 @@
 <% include ./partials/header.ejs %>
   <div class="w-full min-h-screen bg-zinc-900 text-white py-5">
     <div class="flex justify-between items-center px-4">
-      <a class="text-sm text-blue-500" href="/profile"><i class="ri-arrow-left-s-line"></i> profile</a>
-      <h2 class="leading-none text-sm">Upload Post</h2>
-      <a class="text-sm" href="/feed"><i class="ri-home-line"></i> home</a>
+      <a class="text-base text-blue-500" href="/profile"><i class="text-[1.4rem] ri-arrow-left-s-line"></i> Profile</a>
+      <h2 class="upload leading-none text-base">Upload Post</h2>
+      <a class="text-base" href="/feed"><i class="text-[1.4rem] ri-home-line"></i> Home</a>
     </div>
     <div class="flex flex-col items-center gap-2 mt-20">
       <div class="image w-[25vw] h-[25vw] rounded-full border-2 border-zinc-800 flex items-center justify-center">
@@ -25,32 +25,31 @@
   </div>
 
   <script>
-    document.querySelector("#selectpic")
-    .addEventListener("click", function(){
-        document.querySelector("#uploadform #imageinp").click();
+    document.querySelector("#selectpic").addEventListener("click", function(){
+      document.querySelector("#uploadform #imageinp").click();
     });
 
-    document.querySelector(".post")
-    .addEventListener("click", function(){
+    document.querySelector(".post").addEventListener("click", function(){
       this.style.opacity = 1;
       this.style.borderColor = "rgb(161,161,170)";
 
       document.querySelector(".story").style.opacity = .2;
       document.querySelector(".story").style.borderColor = "#18181B";
       document.querySelector(".caption").style.display = "block";
+      document.querySelector(".upload").innerHTML = "Upload Post";
       
       document.querySelector(".postinput").setAttribute("checked", true);
       document.querySelector(".storyinput").removeAttribute("checked");
     })
 
-    document.querySelector(".story")
-    .addEventListener("click", function(){
+    document.querySelector(".story").addEventListener("click", function(){
       this.style.opacity = 1;
       this.style.borderColor = "rgb(161,161,170)";
 
       document.querySelector(".post").style.opacity = .2;
       document.querySelector(".post").style.borderColor = "#18181B";
       document.querySelector(".caption").style.display = "none";
+      document.querySelector(".upload").innerHTML = "Upload Story";
 
       document.querySelector(".postinput").removeAttribute("checked");
       document.querySelector(".storyinput").setAttribute("checked", true);

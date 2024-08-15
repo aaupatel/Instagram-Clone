@@ -10,33 +10,33 @@
         </div>
     </div>
 
-    <script>
-        var inp = document.querySelector(".input")
+<script>
+    var inp = document.querySelector(".input")
 
-        inp.addEventListener("input", function (e) {
-            if (inp.value !== '') {
-                fetch(`/search/${inp.value}`)
-                    .then(raw => raw.json())
-                    .then(result => {
-                        let clutter = "";
+    inp.addEventListener("input", function (e) {
+        if (inp.value !== '') {
+            fetch(`/search/${inp.value}`)
+            .then(raw => raw.json())
+            .then(result => {
+                let clutter = "";
 
-                        result.forEach((item) => {
-                            clutter += `<a href="/profile/${item._id}" class="outline-none">
-                                <div class="text-white flex items-center gap-2 mt-5">
-                                    <div class="image w-[11vw] h-[11vw] rounded-full bg-sky-100 overflow-hidden">
-                                        <img src="/images/uploads/${item.picture}" alt="">
-                                    </div>
-                                    <div class="text">
-                                        <h3>${item.username.length > 30 ? item.username.substring(0, 30) + "..." : item.username}</h3>
-                                        <h4 class="text-xs opacity-30 leading-none">${item.name.length > 30 ? item.name.substring(0, 30) + "..." : item.name}</h4>
-                                    </div>
-                                </div>
-                            </a>`
-                        })
+                result.forEach((item) => {
+                    clutter += `<a href="/profile/${item._id}" class="outline-none">
+                        <div class="text-white flex items-center gap-2 mt-5">
+                            <div class="image w-[11vw] h-[11vw] rounded-full bg-sky-100 overflow-hidden">
+                                <img class="w-full h-full object-cover" src="/images/uploads/${item.picture}" alt="">
+                            </div>
+                            <div class="text">
+                                <h3>${item.username.length > 30 ? item.username.substring(0, 30) + "..." : item.username}</h3>
+                                <h4 class="text-xs opacity-30 leading-none">${item.name.length > 30 ? item.name.substring(0, 30) + "..." : item.name}</h4>
+                            </div>
+                        </div>
+                    </a>`
+                })
 
-                        document.querySelector(".users").innerHTML = clutter;
-                    });
-            }
-        })
-    </script>
-    <% include ./partials/footer.ejs %>
+                document.querySelector(".users").innerHTML = clutter;
+            });
+        }
+    });
+</script>
+<% include ./partials/footer.ejs %>

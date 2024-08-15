@@ -382,6 +382,70 @@ router.get('/story/:userId', isLoggedIn, async (req, res) => {
   }
 });
 
+router.get("/posts/:userId", isLoggedIn, async function (req, res) {
+  try {
+    let user = await userModel.findOne({ username: req.session.passport.user });
+
+    if (!user) {
+      return res.status(404).send("User not found");
+    }
+
+    const userposts = await userModel.findById(req.params.userId).populate("posts");
+
+    if (!userposts) {
+      return res.status(404).send("User Posts not found");
+    }
+
+    const posts = await postModel.find({ user: userposts._id })
+      .populate("user")
+      .populate({
+        path: 'comments',
+        populate: [
+          { path: 'user' },
+          { path: 'replies.user' }
+        ]
+      });
+
+    res.render("posts", {
+      footer: true,
+      user,
+      posts,
+      dater: utils.formatRelativeTime
+    });
+  } catch (error) {
+    console.error('Error in /:userId/posts route:', error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+router.get("/saved", isLoggedIn, async function (req, res) {
+  try {
+    const user = await userModel.findOne({ username: req.session.passport.user })
+      .populate("saved")
+      .populate("posts");
+
+    const posts = await postModel.find({ _id: { $in: user.saved } })
+      .populate("user")
+      .populate({
+        path: 'comments',
+        populate: [
+          { path: 'user' },
+          { path: 'replies.user' }
+        ]
+      });
+
+    res.render("saved", {
+      footer: false,
+      user,
+      posts,
+      dater: utils.formatRelativeTime
+    });
+  } catch (error) {
+    console.error('Error in /saved route:', error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
 router.post("/update", isLoggedIn, async function (req, res) {
   const user = await userModel.findOneAndUpdate(
     { username: req.session.passport.user },
