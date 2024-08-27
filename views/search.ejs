@@ -24,7 +24,7 @@
                     clutter += `<a href="/profile/${item._id}" class="outline-none">
                         <div class="text-white flex items-center gap-2 mt-5">
                             <div class="image w-[11vw] h-[11vw] rounded-full bg-sky-100 overflow-hidden">
-                                <img class="w-full h-full object-cover" src="/images/uploads/${item.picture}" alt="">
+                                <img class="w-full h-full object-cover" src="${item.picture}" alt="">
                             </div>
                             <div class="text">
                                 <h3>${item.username.length > 30 ? item.username.substring(0, 30) + "..." : item.username}</h3>

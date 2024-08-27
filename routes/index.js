@@ -4,17 +4,20 @@ const mongoose = require("mongoose");
 const passport = require("passport");
 const localStrategy = require("passport-local");
 const cron = require('node-cron');
+const multer = require("multer");
 const userModel = require("../models/users");
 const messageModel = require("../models/message");
 const postModel = require("../models/posts");
 const storyModel = require("../models/story");
 const Notification = require("../models/notification");
 const commentModel = require('../models/comments');
+const imagekit = require("../utils/imagekit");
+const utils = require("../utils/utils");
+const deleteOldStories = require('../utils/deleteOldStories');
 
 passport.use(new localStrategy(userModel.authenticate()));
-const upload = require("../utils/multer");
-const utils = require("../utils/utils");
-const deleteOldStories = require('../utils/deleteOldStories'); 
+const upload = multer({ storage: multer.memoryStorage() });
+
 
 cron.schedule('*/10 * * * * *', () => {
   deleteOldStories();
@@ -459,41 +462,76 @@ router.post("/update", isLoggedIn, async function (req, res) {
 });
 
 router.post("/post", isLoggedIn, upload.single("image"), async function (req, res) {
-    const user = await userModel.findOne({
-      username: req.session.passport.user,
-    });
+    try {
+      const user = await userModel.findOne({
+        username: req.session.passport.user,
+      });
 
-    if (req.body.category === "post") {
-      const post = await postModel.create({
-        user: user._id,
-        caption: req.body.caption,
-        picture: req.file.filename,
+      if (!user) {
+        return res.status(404).send("User not found");
+      }
+
+      const fileData = req.file.buffer; 
+      const fileName = req.file.originalname; 
+
+      const response = await imagekit.upload({
+        file: fileData,
+        fileName: fileName,
       });
-      user.posts.push(post._id);
-    } else if (req.body.category === "story") {
-      let story = await storyModel.create({
-        story: req.file.filename,
-        user: user._id,
-      });
-      user.stories.push(story._id);
-    } else {
-      res.send("tez mat chalo");
+
+      if (req.body.category === "post") {
+        const post = await postModel.create({
+          user: user._id,
+          caption: req.body.caption,
+          picture: response.url,
+        });
+        user.posts.push(post._id);
+      } else if (req.body.category === "story") {
+        let story = await storyModel.create({
+          story: response.url,
+          user: user._id,
+        });
+        user.stories.push(story._id);
+      } else {
+        res.send("tez mat chalo");
+      }
+
+      await user.save();
+      res.redirect("/feed");
+    } catch (error) {
+      console.error("Error creating post/story:", error);
+      res.status(500).send("Error creating post or story");
     }
-
-    await user.save();
-    res.redirect("/feed");
   }
 );
 
 router.post("/upload", isLoggedIn, upload.single("image"), async function (req, res) {
+  try {
     const user = await userModel.findOne({
       username: req.session.passport.user,
     });
-    user.picture = req.file.filename;
+
+    if (!user) {
+      return res.status(404).send("User not found");
+    }
+
+    const fileData = req.file.buffer;
+    const fileName = req.file.originalname;
+
+    const response = await imagekit.upload({
+      file: fileData, 
+      fileName: fileName 
+    });
+
+    user.picture = response.url;
     await user.save();
+
     res.redirect("/edit");
+  } catch (error) {
+    console.error("Error uploading image to ImageKit:", error);
+    res.status(500).send("Error uploading image");
   }
-);
+});
 
 router.post("/register", function (req, res) {
   const user = new userModel({

@@ -20,7 +20,7 @@
   
   <% stories.forEach((story, index) => { %>
     <div class="story w-full h-full flex items-center justify-center absolute top-0 left-0 right-0 bottom-0" id="story-<%= index %>" style="display: none;">
-      <img src="/images/uploads/<%= story.story %>" class="max-w-full max-h-full object-cover" alt="Story">
+      <img src="<%= story.story %>" class="w-full h-full object-cover" alt="Story">
     </div>
   <% }); %>
 </div>

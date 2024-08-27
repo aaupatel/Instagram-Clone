@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const plm = require("passport-local-mongoose");
 
-mongoose.connect("mongodb://127.0.0.1:27017/Instagram-Clone");
+mongoose.connect(process.env.MONGODB_URI);
 console.log("Connected to DB")
 
 const userSchema = mongoose.Schema({
@@ -11,7 +11,7 @@ const userSchema = mongoose.Schema({
   password: String,
   picture: {
     type: String,
-    default: "def.png"
+    default: 'https://ik.imagekit.io/k6ug67pvg/def.png?updatedAt=1724678000874'
   },
   contact: String,
   bio: String,

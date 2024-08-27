@@ -10,7 +10,7 @@
   <div class="nav flex gap-4 justify-between items-center px-4 py-3 bg-transparent absolute top-0 left-0 right-0 z-10">
     <a class="flex gap-2 items-center" href="">
       <div class="w-[8vw] h-[8vw] bg-sky-100 rounded-full overflow-hidden">
-        <img class="w-full h-full object-cover" src="/images/uploads/<%= user.picture %>" alt="">
+        <img class="w-full h-full object-cover" src="<%= user.picture %>" alt="">
       </div>
       <h3 class="text-lg">
         <%= user.username.length > 16 ? user.username.substring(0, 16) + "..." : user.username %>
@@ -31,35 +31,35 @@
     
     <% stories.forEach((story, index) => { %>
       <div class="story w-full h-full flex items-center justify-center absolute top-0 left-0 right-0 bottom-0" id="story-<%= index %>" style="display: none;">
-        <img src="/images/uploads/<%= story.story %>" class="max-w-full max-h-full object-cover" alt="Story">
+        <img src="<%= story.story %>" class="max-w-full max-h-full object-cover" alt="Story">
       </div>
 
-      <div class="viewers-container absolute bottom-0 left-2 p-2 cursor-pointer z-30" data-story-index="<%= index %>" style="display: none;">
+      <div class="viewers-container absolute bottom-2 left-1 p-2 cursor-pointer z-30" data-story-index="<%= index %>" style="display: none;">
         <div class="viewers-toggler block justify-center items-center">
-          <div class="flex justify-center items-center relative mb-6">
+          <div class="flex justify-center items-center relative mb-5">
             <% if (story.viewers.length > 0) { %>
                 <% if (story.viewers.length === 0) { %>
 
                 <% } else if (story.viewers.length === 1) { %>
                   <div class="absolute w-[8vw] h-[8vw] bg-sky-100 rounded-full overflow-hidden">
-                    <img class="w-full h-full object-cover" src="/images/uploads/<%= story.viewers[0].userId.picture %>" alt="">
+                    <img class="w-full h-full object-cover" src="<%= story.viewers[0].userId.picture %>" alt="">
                   </div>
                 <% } else if (story.viewers.length === 2) { %>
                   <div class="absolute w-[8vw] h-[8vw] bg-sky-100 rounded-full overflow-hidden mr-4">
-                    <img class="w-full h-full object-cover" src="/images/uploads/<%= story.viewers[0].userId.picture %>" alt="">
+                    <img class="w-full h-full object-cover" src="<%= story.viewers[0].userId.picture %>" alt="">
                   </div>
                   <div class="absolute w-[8vw] h-[8vw] bg-sky-100 rounded-full overflow-hidden ml-4">
-                    <img class="w-full h-full object-cover" src="/images/uploads/<%= story.viewers[1].userId.picture %>" alt="">
+                    <img class="w-full h-full object-cover" src="<%= story.viewers[1].userId.picture %>" alt="">
                   </div>
                 <% } else { %>
                   <div class="absolute w-[8vw] h-[8vw] bg-sky-100 rounded-full overflow-hidden mr-10 -z-10">
-                    <img class="w-full h-full object-cover" src="/images/uploads/<%= story.viewers[0].userId.picture %>" alt="">
+                    <img class="w-full h-full object-cover" src="<%= story.viewers[0].userId.picture %>" alt="">
                   </div>
                   <div class="absolute w-[8vw] h-[8vw] bg-sky-100 rounded-full overflow-hidden">
-                    <img class="w-full h-full object-cover" src="/images/uploads/<%= story.viewers[1].userId.picture %>" alt="">
+                    <img class="w-full h-full object-cover" src="<%= story.viewers[1].userId.picture %>" alt="">
                   </div>
                   <div class="absolute w-[8vw] h-[8vw] bg-sky-100 rounded-full overflow-hidden ml-10">
-                    <img class="w-full h-full object-cover" src="/images/uploads/<%= story.viewers[2].userId.picture %>" alt="">
+                    <img class="w-full h-full object-cover" src="<%= story.viewers[2].userId.picture %>" alt="">
                   </div>
                 <% } %>
             <% } %>
@@ -89,7 +89,7 @@
               <div class="flex items-center justify-between gap-2 p-1">
                 <div class="flex items-center gap-2">
                   <div class="w-[10vw] h-[10vw] bg-sky-100 rounded-full overflow-hidden">
-                      <img class="w-full h-full object-cover" src="/images/uploads/<%= viewer.userId.picture %>" alt="">
+                      <img class="w-full h-full object-cover" src="<%= viewer.userId.picture %>" alt="">
                   </div>
                     <h4 class="text-sm">
                       <%= viewer.userId.username.length > 30 ? viewer.userId.username.substring(0, 30) + "..." : viewer.userId.username %>

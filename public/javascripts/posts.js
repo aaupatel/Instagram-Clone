@@ -316,7 +316,7 @@ function appendReply(commentId, reply, postId) {
     const newReplyHTML = `
     <div class="flex gap-2 mt-2">
         <div class="w-[9vw] h-[9vw] bg-sky-100 rounded-full overflow-hidden self-start">
-            <img class="w-full h-full object-cover" src="/images/uploads/${reply.user.picture}" alt="Profile Image">
+            <img class="w-full h-full object-cover" src="${reply.user.picture}" alt="Profile Image">
         </div>
         <div class="flex-1">
           <a href="/profile/${reply.user._id}" class="outline-none">
@@ -328,7 +328,7 @@ function appendReply(commentId, reply, postId) {
             <h6 class="text-sm text-white break-all">${reply.text}</h6>
             <div class="flex items-center gap-4 mt-0.5">
                 <span class="text-sm text-gray-600">0 likes</span>
-                <button class="text-sm text-gray-600 reply-btn" data-comment-id="${commentId}" data-comment-username="${reply.user.username}" data-comment-picture="/images/uploads/${reply.user.picture}" data-post-id="${postId}">Reply</button>
+                <button class="text-sm text-gray-600 reply-btn" data-comment-id="${commentId}" data-comment-username="${reply.user.username}" data-comment-picture="${reply.user.picture}" data-post-id="${postId}">Reply</button>
             </div>
         </div>
         <button class="text-gray-600 flex items-center self-start mt-1">
@@ -347,7 +347,7 @@ function appendComment(postId, comment) {
     <a href="#" class="block px-2 py-1">
         <div class="flex gap-2">
             <div class="w-[9vw] h-[9vw] bg-sky-100 rounded-full overflow-hidden self-start">
-                <img class="w-full h-full object-cover" src="/images/uploads/${picture}" alt="Profile Image">
+                <img class="w-full h-full object-cover" src="${picture}" alt="Profile Image">
             </div>
             <div class="flex-1">
               <a href="/profile/${comment.user._id}" class="outline-none">
@@ -359,7 +359,7 @@ function appendComment(postId, comment) {
                 <h6 class="text-sm text-white break-all">${comment.text}</h6>
                 <div class="flex items-center gap-4 mt-0.5">
                     <span class="text-sm text-gray-600">0 likes</span>
-                    <button class="text-sm text-gray-600 reply-btn" data-comment-id="${comment._id}" data-comment-username="${comment.user ? comment.user.username : 'Unknown'}" data-comment-picture="/images/uploads/${picture}" data-post-id="${postId}">Reply</button>
+                    <button class="text-sm text-gray-600 reply-btn" data-comment-id="${comment._id}" data-comment-username="${comment.user ? comment.user.username : 'Unknown'}" data-comment-picture="${picture}" data-post-id="${postId}">Reply</button>
                 </div>
             </div>
             <button class="text-gray-600 flex items-center self-start mt-1">

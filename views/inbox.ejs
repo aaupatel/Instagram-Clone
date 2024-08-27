@@ -31,7 +31,7 @@
     <a href="/chat/<%= user._id %>">
       <div class=" px-4 flex items-center gap-2 py-2 chat" id="shery_<%= user._id %>">
         <div class="w-[13vw] h-[13vw] bg-sky-100 rounded-full overflow-hidden">
-          <img class="w-full h-full object-cover" src="/images/uploads/<%= user.picture %>" alt="">
+          <img class="w-full h-full object-cover" src="<%= user.picture %>" alt="">
         </div>
         <div>
           <h4 class="text-sm">
@@ -82,7 +82,7 @@
             clutter += `<a href="/chat/${item._id}" class="outline-none" id="Haauj_H${item._id}">
                           <div class="text-white flex items-center gap-2 mt-5">
                             <div class="image w-[11vw] h-[11vw] rounded-full bg-sky-100 overflow-hidden">
-                              <img src="/images/uploads/${item.picture}" alt="">
+                              <img src="${item.picture}" alt="">
                             </div>
                             <div class="text">
                               <h3>${item.username.length > 30 ? item.username.substring(0, 30) + "..." : item.username}</h3>
